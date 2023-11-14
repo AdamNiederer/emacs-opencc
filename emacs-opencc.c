@@ -47,7 +47,7 @@ static emacs_value message(emacs_env* env, int argc, ...) {
 
 const char* const opencc_convert_doc = "Return a string with the second argument converted according to the configuration name in the first argument.";
 static emacs_value opencc_convert(emacs_env* env, ptrdiff_t argc, emacs_value* argv, void* data) {
-  // Ensure the argument is a string
+  // Ensure there are two string arguments
   if(argc != 2) {
     throw(env, "opencc: expected 2 arguments");
   }
@@ -78,10 +78,10 @@ static emacs_value opencc_convert(emacs_env* env, ptrdiff_t argc, emacs_value* a
     throw(env, "opencc: invalid configuration");
   }
 
-  // Initialize the input buffer with the provided length + a zero byte
+  // Initialize the input buffer with the string's length + a zero byte
   ptrdiff_t buf_len = 1 + env->extract_integer(env, funcall(env, "string-bytes", 1, &argv[1]));
   if(buf_len < 0) {
-    throw(env, "opencc: third argument must be >= zero");
+    throw(env, "opencc: second argument length must be >= zero");
   }
   char* buf = calloc(buf_len, sizeof(char));
 
@@ -90,7 +90,7 @@ static emacs_value opencc_convert(emacs_env* env, ptrdiff_t argc, emacs_value* a
     throw(env, "opencc: second argument is too long");
   }
 
-  // Initialize the result buffer
+  // Initialize the result buffer (w/ some extra space in case of a 1:2 mapping)
   ptrdiff_t result_len = buf_len + buf_len / 16 + 16;
   char* result = calloc(result_len, sizeof(char));
 
